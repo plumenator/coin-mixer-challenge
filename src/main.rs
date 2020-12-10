@@ -1,6 +1,6 @@
 use std::io::{self, BufRead};
 
-use coin_mixer_challenge::address;
+use coin_mixer_challenge::{address, store::Store};
 
 fn main() -> io::Result<()> {
     let mut w_addrs = Vec::new();
@@ -10,10 +10,11 @@ fn main() -> io::Result<()> {
         ));
     }
     println!("Read the following withdrawal addresses:");
-    for w_addr in w_addrs {
+    for w_addr in &w_addrs {
         println!("{}", w_addr.to_string());
     }
-    let d_addr = address::Deposit::new();
+    let mut store = Store::new();
+    let d_addr = store.register(&w_addrs);
     println!("Generated deposit address:");
     println!("{}", d_addr.to_string());
     Ok(())
