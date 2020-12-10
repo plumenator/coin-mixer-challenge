@@ -1,3 +1,4 @@
+#[derive(PartialEq, Eq, Debug, Hash, Clone)]
 pub struct Withdrawal(String);
 
 impl Withdrawal {
@@ -12,14 +13,14 @@ impl ToString for Withdrawal {
     }
 }
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq, Debug, Hash, Clone)]
 pub struct Deposit(String);
 
 const MIN_ADDRESS_LEN: usize = 26;
 const MAX_ADDRESS_LEN: usize = 35;
 
 impl Deposit {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         use rand::distributions::Alphanumeric;
         use rand::{thread_rng, Rng};
         let mut rng = thread_rng();
