@@ -16,20 +16,9 @@ impl ToString for Withdrawal {
 #[derive(PartialEq, Eq, Debug, Hash, Clone)]
 pub struct Deposit(String);
 
-const MIN_ADDRESS_LEN: usize = 26;
-const MAX_ADDRESS_LEN: usize = 35;
-
 impl Deposit {
     pub(crate) fn new() -> Self {
-        use rand::distributions::Alphanumeric;
-        use rand::{thread_rng, Rng};
-        let mut rng = thread_rng();
-        let addr_str: String = rng
-            .sample_iter(&Alphanumeric)
-            .take(rng.gen_range(MIN_ADDRESS_LEN, MAX_ADDRESS_LEN + 1))
-            .collect();
-
-        Self(addr_str)
+        Self(generate_address_string())
     }
 }
 
@@ -45,19 +34,31 @@ impl ToString for Deposit {
     }
 }
 
+const MIN_ADDRESS_LEN: usize = 26;
+const MAX_ADDRESS_LEN: usize = 35;
+
+fn generate_address_string() -> String {
+    use rand::distributions::Alphanumeric;
+    use rand::{thread_rng, Rng};
+    let mut rng = thread_rng();
+    rng.sample_iter(&Alphanumeric)
+        .take(rng.gen_range(MIN_ADDRESS_LEN, MAX_ADDRESS_LEN + 1))
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn address_is_random() {
-        assert_ne!(Deposit::new(), Deposit::default());
+        assert_ne!(generate_address_string(), generate_address_string());
     }
 
     #[test]
     fn address_is_in_range() {
-        let addr = Deposit::default();
-        assert!(addr.0.len() >= MIN_ADDRESS_LEN);
-        assert!(addr.0.len() <= MAX_ADDRESS_LEN);
+        let addr = generate_address_string();
+        assert!(addr.len() >= MIN_ADDRESS_LEN);
+        assert!(addr.len() <= MAX_ADDRESS_LEN);
     }
 }
