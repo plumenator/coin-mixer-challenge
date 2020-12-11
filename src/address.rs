@@ -37,6 +37,21 @@ impl From<Unused> for Deposit {
 }
 
 #[derive(PartialEq, Eq, Debug, Hash, Clone)]
+pub(crate) struct House(String);
+
+impl ToString for House {
+    fn to_string(&self) -> String {
+        self.0.clone()
+    }
+}
+
+impl From<Unused> for House {
+    fn from(unused: Unused) -> Self {
+        Self(unused.0)
+    }
+}
+
+#[derive(PartialEq, Eq, Debug, Hash, Clone)]
 pub(crate) struct Unused(String);
 
 impl Unused {

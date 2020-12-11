@@ -2,7 +2,7 @@ use std::io::{self, BufRead};
 
 use structopt::StructOpt;
 
-use coin_mixer_challenge::{address, api::Api, store::Store};
+use coin_mixer_challenge::{address, api::Api, mixer::Mixer, store::Store};
 
 #[derive(Debug, StructOpt)]
 struct Options {
@@ -29,5 +29,6 @@ fn main() -> io::Result<()> {
     let d_addr = store.register(&api, &w_addrs);
     println!("Generated deposit address:");
     println!("{}", d_addr.to_string());
+    let mixer = Mixer::new(&api);
     Ok(())
 }
