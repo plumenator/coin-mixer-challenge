@@ -1,3 +1,5 @@
+use crate::api::Api;
+
 #[derive(PartialEq, Eq, Debug, Hash, Clone)]
 pub struct Withdrawal(String);
 
@@ -17,18 +19,38 @@ impl ToString for Withdrawal {
 pub struct Deposit(String);
 
 impl Deposit {
-    pub(crate) fn new() -> Self {
-        Self(generate_address_string())
-    }
-}
-
-impl Default for Deposit {
-    fn default() -> Self {
-        Self::new()
+    pub(crate) fn new(unused: Unused) -> Self {
+        unused.into()
     }
 }
 
 impl ToString for Deposit {
+    fn to_string(&self) -> String {
+        self.0.clone()
+    }
+}
+
+impl From<Unused> for Deposit {
+    fn from(unused: Unused) -> Self {
+        Self(unused.0)
+    }
+}
+
+#[derive(PartialEq, Eq, Debug, Hash, Clone)]
+pub(crate) struct Unused(String);
+
+impl Unused {
+    pub(crate) fn new(api: &Api) -> Self {
+        loop {
+            let addr_str = generate_address_string();
+            if api.is_unused_address(&addr_str) {
+                return Self(addr_str);
+            }
+        }
+    }
+}
+
+impl ToString for Unused {
     fn to_string(&self) -> String {
         self.0.clone()
     }

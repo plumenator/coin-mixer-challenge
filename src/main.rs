@@ -2,7 +2,7 @@ use std::io::{self, BufRead};
 
 use structopt::StructOpt;
 
-use coin_mixer_challenge::{address, store::Store};
+use coin_mixer_challenge::{address, api::Api, store::Store};
 
 #[derive(Debug, StructOpt)]
 struct Options {
@@ -14,6 +14,7 @@ fn main() -> io::Result<()> {
     let Options { api_url } = Options::from_args();
     println!("Given API URL:");
     println!("{}", api_url);
+    let api = Api::new(api_url);
     let mut w_addrs = Vec::new();
     for addr_str in io::stdin().lock().lines() {
         w_addrs.push(address::Withdrawal::new(
@@ -25,7 +26,7 @@ fn main() -> io::Result<()> {
         println!("{}", w_addr.to_string());
     }
     let mut store = Store::new();
-    let d_addr = store.register(&w_addrs);
+    let d_addr = store.register(&api, &w_addrs);
     println!("Generated deposit address:");
     println!("{}", d_addr.to_string());
     Ok(())
