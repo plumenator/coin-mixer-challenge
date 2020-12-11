@@ -30,5 +30,6 @@ fn main() -> io::Result<()> {
     println!("Generated deposit address:");
     println!("{}", d_addr.to_string());
     let mixer = Mixer::new(&api);
+    mixer.run(&api, &store);
     Ok(())
 }

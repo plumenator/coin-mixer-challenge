@@ -24,6 +24,20 @@ impl Store {
         self.w_addrs.insert(d_addr.clone(), w_addrs.into());
         d_addr.clone()
     }
+
+    pub(crate) fn all_deposits(&self) -> Vec<address::Deposit> {
+        self.w_addrs.keys().cloned().collect()
+    }
+
+    pub(crate) fn all_withdrawals(
+        &self,
+        deposit_addr: &address::Deposit,
+    ) -> Vec<address::Withdrawal> {
+        self.w_addrs
+            .get(deposit_addr)
+            .expect("gets withdrawal addresses")
+            .clone()
+    }
 }
 
 impl Default for Store {

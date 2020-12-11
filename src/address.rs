@@ -7,6 +7,10 @@ impl Withdrawal {
     pub fn new(addr_str: String) -> Self {
         Self(addr_str)
     }
+
+    pub(crate) fn as_str(&self) -> &str {
+        self.0.as_str()
+    }
 }
 
 impl ToString for Withdrawal {
@@ -21,6 +25,10 @@ pub struct Deposit(String);
 impl Deposit {
     pub(crate) fn new(unused: Unused) -> Self {
         unused.into()
+    }
+
+    pub(crate) fn as_str(&self) -> &str {
+        self.0.as_str()
     }
 }
 
@@ -38,6 +46,12 @@ impl From<Unused> for Deposit {
 
 #[derive(PartialEq, Eq, Debug, Hash, Clone)]
 pub(crate) struct House(String);
+
+impl House {
+    pub(crate) fn as_str(&self) -> &str {
+        self.0.as_str()
+    }
+}
 
 impl ToString for House {
     fn to_string(&self) -> String {
