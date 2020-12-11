@@ -8,3 +8,5 @@ edition = "2018"
 
 [dependencies]
 rand = "0.7.3"
+structopt = "0.3.21"
+url = "2.2.0"
