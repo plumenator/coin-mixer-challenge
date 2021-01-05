@@ -57,7 +57,6 @@ Done!
 
 ## Remaining work
 
-1. Handle IO errors gracefully instead of panicking and terminating.
 1. Accept multiple addresses, say, from a file. That would give the
    mixer a chance to intersperse transactions belonging to different
    users.

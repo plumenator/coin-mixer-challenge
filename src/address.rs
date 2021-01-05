@@ -69,11 +69,11 @@ impl From<Unused> for House {
 pub(crate) struct Unused(String);
 
 impl Unused {
-    pub(crate) fn new(api: &Api) -> Self {
+    pub(crate) fn new(api: &Api) -> anyhow::Result<Self> {
         loop {
             let addr_str = generate_address_string();
-            if api.is_unused_address(&addr_str) {
-                return Self(addr_str);
+            if api.is_unused_address(&addr_str)? {
+                return Ok(Self(addr_str));
             }
         }
     }

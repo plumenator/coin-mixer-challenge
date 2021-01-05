@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Context};
 use bigdecimal::{BigDecimal, Zero};
 use serde::Deserialize;
 use url::Url;
@@ -23,41 +24,48 @@ pub struct Api {
 }
 
 impl Api {
-    pub fn new(mut base_url: Url) -> Self {
+    pub fn new(mut base_url: Url) -> anyhow::Result<Self> {
         // the trailing slash is significant
         base_url
             .path_segments_mut()
-            .expect("path segments")
+            .map_err(|_| anyhow!("given URL cannot be a base"))?
             .push("/");
-        let addresses_url = base_url.join("addresses/").expect("/addresses");
-        let transactions_url = base_url.join("transactions").expect("/transactions");
-        Self {
+        // the trailing slash is significant
+        let addresses_url = base_url.join("addresses/")?;
+        // the trailing slash is unnecessary, because we don't use this as a base url
+        let transactions_url = base_url.join("transactions")?;
+        Ok(Self {
             addresses_url,
             transactions_url,
-        }
+        })
     }
 
-    pub(crate) fn is_unused_address(&self, addr_str: &str) -> bool {
+    pub(crate) fn is_unused_address(&self, addr_str: &str) -> anyhow::Result<bool> {
         let AddressInfo {
             balance,
             transactions,
-        } = self.address_info(addr_str);
-        balance.is_zero() && transactions.is_empty()
+        } = self.address_info(addr_str)?;
+        Ok(balance.is_zero() && transactions.is_empty())
     }
 
-    pub(crate) fn address_info(&self, addr_str: &str) -> AddressInfo {
+    pub(crate) fn address_info(&self, addr_str: &str) -> anyhow::Result<AddressInfo> {
         reqwest::blocking::get(self.addresses_url.join(addr_str).expect("/{address}"))
-            .expect("gets address info")
+            .context("could not GET address info")?
             .json()
-            .expect("parses json response")
+            .context("could not parse response as JSON")
     }
 
-    pub(crate) fn send_all(&self, from_addr: &str, to_addr: &str) {
-        let AddressInfo { balance, .. } = self.address_info(from_addr);
-        self.send_part(from_addr, to_addr, balance);
+    pub(crate) fn send_all(&self, from_addr: &str, to_addr: &str) -> anyhow::Result<()> {
+        let AddressInfo { balance, .. } = self.address_info(from_addr)?;
+        self.send_part(from_addr, to_addr, balance)
     }
 
-    pub(crate) fn send_part(&self, from_addr: &str, to_addr: &str, amount: BigDecimal) {
+    pub(crate) fn send_part(
+        &self,
+        from_addr: &str,
+        to_addr: &str,
+        amount: BigDecimal,
+    ) -> anyhow::Result<()> {
         let amount = amount.to_string();
         let params = [
             ("fromAddress", from_addr),
@@ -71,6 +79,7 @@ impl Api {
             .post(self.transactions_url.clone())
             .query(&params)
             .send()
-            .expect("sends request");
+            .context("could not POST send request")
+            .map(|_| ())
     }
 }
