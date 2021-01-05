@@ -7,9 +7,11 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow = "1.0.37"
 bigdecimal = { version = "0.2.0", features = ["serde"] }
 rand = "0.7.3"
 reqwest = { version = "0.10.9", features = ["blocking", "json"] }
 serde = { version = "1.0.118", features = ["derive"] }
 structopt = "0.3.21"
+tokio = { version = "0.2.24", features = ["full"] } # to be compatible with reqwest
 url = "2.2.0"

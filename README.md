@@ -3,7 +3,7 @@
 ## Usage
 
 ```sh
-$ cargo run -- --api-url https://jobcoin.gemini.com/marmalade-manual/api
+$ cargo run -- --api-base-url https://jobcoin.gemini.com/marmalade-manual/api
 Given API URL:
 https://jobcoin.gemini.com/marmalade-manual/api
 address1
@@ -57,26 +57,23 @@ Done!
 
 ## Remaining work
 
-1. Handle IO errors gracefully instead of panicking and terminating.
-2. Accept multiple addresses, say, from a file. That would give the
+1. Accept multiple addresses, say, from a file. That would give the
    mixer a chance to intersperse transactions belonging to different
    users.
-3. Make the range of lengths of the generated addressses configurable.
-4. Currently, the program fails with an error if there's a trailing
+1. Make the range of lengths of the generated addressses configurable.
+1. Currently, the program fails with an error if there's a trailing
    slash in the API base URL. We should be able to handle that
    gracefully.
-5. Implement graceful shutdown. Right now, upon issuing Ctrl+C, the
+1. Implement graceful shutdown. Right now, upon issuing Ctrl+C, the
    program abandons whatever it's doing immediately.
-6. Make all the API requests async. I implemented everything with
-   synchronous calls to get to an initial version quickly.
-7. Fake the API endpoint, for example, by using a trait that would let
+1. Fake the API endpoint, for example, by using a trait that would let
    us implement testing handlers. Right now, one of the tests makes
    API calls to the real thing.
-8. Come up with a measure for the effectiveness of the mixing and
+1. Come up with a measure for the effectiveness of the mixing and
    write benchmark tests that let us keep track of how our changes
    affect the effectiveness of the mixer.
-9. Add persistence so that the program can resume where it left off
+1. Add persistence so that the program can resume where it left off
    and also remember the deposit addresses configured before.
-10. Possibly split the program into a client and a server so that
+1. Possibly split the program into a client and a server so that
     mutiple users can interact with it,
-11. Use a proper logging library instead of using `println!()`.
+1. Use a proper logging library instead of using `println!()`.

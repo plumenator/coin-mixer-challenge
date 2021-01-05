@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use anyhow::ensure;
+
 use crate::{address, api::Api};
 
 pub struct Store {
@@ -15,14 +17,19 @@ impl Store {
         }
     }
 
-    pub fn register(&mut self, api: &Api, w_addrs: &[address::Withdrawal]) -> address::Deposit {
-        let unused_addr = address::Unused::new(api);
+    pub async fn register(
+        &mut self,
+        api: &Api,
+        w_addrs: &[address::Withdrawal],
+    ) -> anyhow::Result<address::Deposit> {
+        ensure!(!w_addrs.is_empty());
+        let unused_addr = address::Unused::new(api).await?;
         let d_addr = self
             .d_addrs
             .entry(w_addrs.into())
             .or_insert_with(|| address::Deposit::new(unused_addr));
         self.w_addrs.insert(d_addr.clone(), w_addrs.into());
-        d_addr.clone()
+        Ok(d_addr.clone())
     }
 
     pub(crate) fn all_deposits(&self) -> Vec<address::Deposit> {
@@ -50,8 +57,8 @@ impl Default for Store {
 mod tests {
     use super::*;
 
-    #[test]
-    fn register_is_idempotent() {
+    #[tokio::test]
+    async fn register_is_idempotent() {
         let mut store = Store::new();
         let w_addrs = vec![
             address::Withdrawal::new("alice".into()),
@@ -59,10 +66,14 @@ mod tests {
         ];
         let api = Api::new(
             url::Url::parse("https://jobcoin.gemini.com/marmalade-manual/api").expect("parse"),
-        );
+        )
+        .expect("api");
         assert_eq!(
-            store.register(&api, &w_addrs),
-            store.register(&api, &w_addrs)
+            store.register(&api, &w_addrs).await.expect("register once"),
+            store
+                .register(&api, &w_addrs)
+                .await
+                .expect("register again")
         );
     }
 }
