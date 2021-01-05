@@ -7,14 +7,14 @@ use coin_mixer_challenge::{address, api::Api, mixer::Mixer, store::Store};
 #[derive(Debug, StructOpt)]
 struct Options {
     #[structopt(long)]
-    api_url: url::Url,
+    api_base_url: url::Url,
 }
 
 fn main() -> io::Result<()> {
-    let Options { api_url } = Options::from_args();
-    println!("Given API URL:");
-    println!("{}", api_url);
-    let api = Api::new(api_url);
+    let Options { api_base_url } = Options::from_args();
+    println!("Given API Base URL:");
+    println!("{}", api_base_url);
+    let api = Api::new(api_base_url);
     let mut w_addrs = Vec::new();
     for addr_str in io::stdin().lock().lines() {
         w_addrs.push(address::Withdrawal::new(

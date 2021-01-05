@@ -3,7 +3,7 @@
 ## Usage
 
 ```sh
-$ cargo run -- --api-url https://jobcoin.gemini.com/marmalade-manual/api
+$ cargo run -- --api-base-url https://jobcoin.gemini.com/marmalade-manual/api
 Given API URL:
 https://jobcoin.gemini.com/marmalade-manual/api
 address1
