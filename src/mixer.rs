@@ -54,8 +54,9 @@ fn randomized(
     w_addrs: Vec<address::Withdrawal>,
     mut amount: BigDecimal,
 ) -> Vec<(Duration, address::Withdrawal, BigDecimal)> {
-    use rand::{prelude::SliceRandom, thread_rng, Rng};
     use std::convert::TryFrom;
+
+    use rand::{prelude::SliceRandom, thread_rng, Rng};
 
     let mut rng = thread_rng();
     let mut parts = Vec::new();
