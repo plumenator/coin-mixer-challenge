@@ -9,26 +9,23 @@ pub struct Mixer {
 }
 
 impl Mixer {
-    pub fn new(api: &Api) -> anyhow::Result<Self> {
+    pub async fn new(api: &Api) -> anyhow::Result<Self> {
         Ok(Self {
-            house_addr: address::Unused::new(&api)?.into(),
+            house_addr: address::Unused::new(&api).await?.into(),
         })
     }
 
-    pub fn run(&self, api: &Api, store: &Store) -> anyhow::Result<()> {
+    pub async fn run(&self, api: &Api, store: &Store) -> anyhow::Result<()> {
         let all_deposits = store.all_deposits();
         loop {
-            let non_empty = all_deposits.iter().filter_map(|d| {
-                let deposit_info = api.address_info(d.as_str()).ok()?;
-                if !deposit_info.balance.is_zero() {
-                    Some((d, deposit_info))
-                } else {
-                    None
+            for deposit_addr in &all_deposits {
+                let deposit_info = api.address_info(deposit_addr.as_str()).await?;
+                if deposit_info.balance.is_zero() {
+                    continue;
                 }
-            });
-            for (deposit_addr, deposit_info) in non_empty {
                 println!("Detected deposit of amount: {}", deposit_info.balance);
-                api.send_all(deposit_addr.as_str(), self.house_addr.as_str())?;
+                api.send_all(deposit_addr.as_str(), self.house_addr.as_str())
+                    .await?;
                 println!("Sending to house address: {}", self.house_addr.to_string());
                 let w_addrs = store.all_withdrawals(&deposit_addr);
                 for (wait_duration, w_addr, partial_amount) in
@@ -40,7 +37,8 @@ impl Mixer {
                         self.house_addr.as_str(),
                         w_addr.as_str(),
                         partial_amount.clone(),
-                    )?;
+                    )
+                    .await?;
                     println!("Sending {} to {}", partial_amount, w_addr.as_str());
                 }
                 println!("Done!");

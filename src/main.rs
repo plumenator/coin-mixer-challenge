@@ -11,7 +11,8 @@ struct Options {
     api_base_url: url::Url,
 }
 
-fn main() -> anyhow::Result<()> {
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
     let Options { api_base_url } = Options::from_args();
     println!("Given API Base URL:");
     println!("{}", api_base_url);
@@ -27,9 +28,9 @@ fn main() -> anyhow::Result<()> {
         println!("{}", w_addr.to_string());
     }
     let mut store = Store::new();
-    let d_addr = store.register(&api, &w_addrs)?;
+    let d_addr = store.register(&api, &w_addrs).await?;
     println!("Generated deposit address:");
     println!("{}", d_addr.to_string());
-    let mixer = Mixer::new(&api)?;
-    mixer.run(&api, &store)
+    let mixer = Mixer::new(&api).await?;
+    mixer.run(&api, &store).await
 }

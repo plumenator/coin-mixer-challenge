@@ -66,8 +66,6 @@ Done!
    gracefully.
 1. Implement graceful shutdown. Right now, upon issuing Ctrl+C, the
    program abandons whatever it's doing immediately.
-1. Make all the API requests async. I implemented everything with
-   synchronous calls to get to an initial version quickly.
 1. Fake the API endpoint, for example, by using a trait that would let
    us implement testing handlers. Right now, one of the tests makes
    API calls to the real thing.

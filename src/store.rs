@@ -17,13 +17,13 @@ impl Store {
         }
     }
 
-    pub fn register(
+    pub async fn register(
         &mut self,
         api: &Api,
         w_addrs: &[address::Withdrawal],
     ) -> anyhow::Result<address::Deposit> {
         ensure!(!w_addrs.is_empty());
-        let unused_addr = address::Unused::new(api)?;
+        let unused_addr = address::Unused::new(api).await?;
         let d_addr = self
             .d_addrs
             .entry(w_addrs.into())
@@ -57,8 +57,8 @@ impl Default for Store {
 mod tests {
     use super::*;
 
-    #[test]
-    fn register_is_idempotent() {
+    #[tokio::test]
+    async fn register_is_idempotent() {
         let mut store = Store::new();
         let w_addrs = vec![
             address::Withdrawal::new("alice".into()),
@@ -69,8 +69,11 @@ mod tests {
         )
         .expect("api");
         assert_eq!(
-            store.register(&api, &w_addrs).expect("register once"),
-            store.register(&api, &w_addrs).expect("register again")
+            store.register(&api, &w_addrs).await.expect("register once"),
+            store
+                .register(&api, &w_addrs)
+                .await
+                .expect("register again")
         );
     }
 }

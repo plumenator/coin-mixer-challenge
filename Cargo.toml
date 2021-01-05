@@ -13,4 +13,5 @@ rand = "0.7.3"
 reqwest = { version = "0.10.9", features = ["blocking", "json"] }
 serde = { version = "1.0.118", features = ["derive"] }
 structopt = "0.3.21"
+tokio = { version = "0.2.24", features = ["full"] } # to be compatible with reqwest
 url = "2.2.0"

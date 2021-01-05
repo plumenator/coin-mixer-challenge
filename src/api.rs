@@ -40,27 +40,31 @@ impl Api {
         })
     }
 
-    pub(crate) fn is_unused_address(&self, addr_str: &str) -> anyhow::Result<bool> {
+    pub(crate) async fn is_unused_address(&self, addr_str: &str) -> anyhow::Result<bool> {
         let AddressInfo {
             balance,
             transactions,
-        } = self.address_info(addr_str)?;
+        } = self.address_info(addr_str).await?;
         Ok(balance.is_zero() && transactions.is_empty())
     }
 
-    pub(crate) fn address_info(&self, addr_str: &str) -> anyhow::Result<AddressInfo> {
-        reqwest::blocking::get(self.addresses_url.join(addr_str).expect("/{address}"))
-            .context("could not GET address info")?
-            .json()
-            .context("could not parse response as JSON")
+    pub(crate) async fn address_info(&self, addr_str: &str) -> anyhow::Result<AddressInfo> {
+        Ok(
+            reqwest::get(self.addresses_url.join(addr_str).expect("/{address}"))
+                .await
+                .context("could not GET address info")?
+                .json::<AddressInfo>()
+                .await
+                .context("could not parse response as JSON")?,
+        )
     }
 
-    pub(crate) fn send_all(&self, from_addr: &str, to_addr: &str) -> anyhow::Result<()> {
-        let AddressInfo { balance, .. } = self.address_info(from_addr)?;
-        self.send_part(from_addr, to_addr, balance)
+    pub(crate) async fn send_all(&self, from_addr: &str, to_addr: &str) -> anyhow::Result<()> {
+        let AddressInfo { balance, .. } = self.address_info(from_addr).await?;
+        Ok(self.send_part(from_addr, to_addr, balance).await?)
     }
 
-    pub(crate) fn send_part(
+    pub(crate) async fn send_part(
         &self,
         from_addr: &str,
         to_addr: &str,
@@ -73,12 +77,13 @@ impl Api {
             ("amount", &amount),
         ];
 
-        let client = reqwest::blocking::Client::new();
+        let client = reqwest::Client::new();
         // TODO: handle the insufficient balance error
         client
             .post(self.transactions_url.clone())
             .query(&params)
             .send()
+            .await
             .context("could not POST send request")
             .map(|_| ())
     }
