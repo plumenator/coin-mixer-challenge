@@ -10,8 +10,8 @@ edition = "2018"
 anyhow = "1.0.37"
 bigdecimal = { version = "0.2.0", features = ["serde"] }
 rand = "0.7.3"
-reqwest = { version = "0.10.9", features = ["blocking", "json"] }
+reqwest = { version = "0.11", features = ["blocking", "json"] }
 serde = { version = "1.0.118", features = ["derive"] }
 structopt = "0.3.21"
-tokio = { version = "0.2.24", features = ["full"] } # to be compatible with reqwest
+tokio = { version = "1", features = ["full"] }
 url = "2.2.0"
