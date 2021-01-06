@@ -58,11 +58,11 @@ fn randomized(
 
     let mut rng = thread_rng();
     let mut parts = Vec::new();
-    for _ in 0..9 {
+    let fractions = gen_fractions(&mut rng, 10);
+    for fraction in &fractions[1..] {
         let duration = Duration::from_millis(rng.gen_range(1, 101));
         let address = w_addrs.choose(&mut rng).expect("an address").clone();
-        let fraction: f64 = rng.gen_range(0f64, 1f64);
-        let partial_amount = BigDecimal::try_from(fraction).expect("a bigdecimal") * &amount;
+        let partial_amount = BigDecimal::try_from(*fraction).expect("a bigdecimal") * &amount;
         parts.push((duration, address, partial_amount.clone()));
         amount -= partial_amount;
     }
@@ -70,4 +70,44 @@ fn randomized(
     let address = w_addrs.choose(&mut rng).expect("an address").clone();
     parts.push((duration, address, amount));
     parts
+}
+
+fn gen_fractions(rng: &mut impl rand::Rng, size: usize) -> Vec<f64> {
+    let mut numerators = vec![0u8; size];
+    rng.fill(&mut numerators[..]);
+    let denominator: u16 = numerators.iter().map(|x| *x as u16).sum();
+    numerators
+        .iter()
+        .map(|x| *x as f64 / denominator as f64)
+        .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn do_parts_decay() -> bool {
+        let parts = randomized(
+            vec![
+                address::Withdrawal::new("add1".into()),
+                address::Withdrawal::new("add2".into()),
+                address::Withdrawal::new("add3".into()),
+            ],
+            10.into(),
+        );
+        parts[0].2 > parts[parts.len() - 1].2
+    }
+
+    #[test]
+    fn parts_dont_decay() {
+        let results = vec![
+            do_parts_decay(),
+            do_parts_decay(),
+            do_parts_decay(),
+            do_parts_decay(),
+            do_parts_decay(),
+        ];
+
+        assert!(!results.iter().all(|x| *x))
+    }
 }
